@@ -25,12 +25,14 @@ jobs:
             -H "x-rapidapi-key: ${API_KEY}" \
             --data-urlencode "date=${DATE}" \
             --data-urlencode "status=FT" -o api-response.json
-
-          python - <<'PY'
+          
+          python3 << 'EOF'
 import json
-d = json.load(open('api-response.json'))
-json.dump(d.get('response', []), open('matches.json', 'w'), indent=2, ensure_ascii=False)
-PY
+with open('api-response.json') as f:
+    d = json.load(f)
+with open('matches.json', 'w') as f:
+    json.dump(d.get('response', []), f, indent=2, ensure_ascii=False)
+EOF
 
       - name: Commit matches.json
         run: |
