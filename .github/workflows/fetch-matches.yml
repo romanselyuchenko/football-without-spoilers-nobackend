@@ -1,0 +1,41 @@
+name: Fetch matches for GitHub Pages
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 * * * *'
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+
+      - name: Fetch matches from API
+        env:
+          API_KEY: ${{ secrets.API_FOOTBALL_KEY }}
+        run: |
+          DATE=$(date -u +%F)
+          curl -s -G "https://v3.football.api-sports.io/fixtures" \
+            -H "x-rapidapi-host: api-football-v1.p.rapidapi.com" \
+            -H "x-rapidapi-key: ${API_KEY}" \
+            --data-urlencode "date=${DATE}" \
+            --data-urlencode "status=FT" -o api-response.json
+
+          python - <<'PY'
+import json
+d = json.load(open('api-response.json'))
+json.dump(d.get('response', []), open('matches.json', 'w'), indent=2, ensure_ascii=False)
+PY
+
+      - name: Commit matches.json
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add matches.json
+          git commit -m "Update matches.json" || echo "No changes to commit"
+          git push
