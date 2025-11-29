@@ -12,6 +12,12 @@ body {
     max-width: 980px;
     margin: 0 auto;
     padding: 0 16px;
+
+    /* Новое: делаем контейнер флекс‑колонкой и центрируем дочерние элементы */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px; /* небольшой отступ между внутренними блоками */
 }
 
 /* Заголовок */
@@ -63,6 +69,11 @@ button, #load {
     padding: 12px;
     margin-bottom: 14px;
     box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+
+    /* Новое: ограничиваем ширину карточки и центрируем её внутри .container */
+    width: 100%;
+    max-width: 760px;
+    box-sizing: border-box;
 }
 
 .league h2 {
@@ -81,6 +92,10 @@ button, #load {
     padding: 8px 6px;
     border-top: 1px solid #f1f1f1;
     gap: 12px;
+
+    /* Новое: матч занимает всю ширину карточки */
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .match:first-child {

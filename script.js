@@ -1,5 +1,7 @@
-/* Вставьте сюда ваш ключ (опасно для публичных сайтов) */
-const API_KEY = '952583d14957b0616f3736e623fad301';
+/* УДАЛИТЕ или закомментируйте строку с ключом вверху:
+const API_KEY = '...';
+*/
+
 const URL = 'https://v3.football.api-sports.io/fixtures';
 
 class LeagueManager {
@@ -45,24 +47,23 @@ class LeagueManager {
 
     async fetchLeagueData() {
         try {
-            const selectedDate = this.datePicker.value;
-            const params = new URLSearchParams({ date: selectedDate, status: 'FT' });
-            const res = await fetch(`${URL}?${params.toString()}`, {
-                headers: {
-                    'x-rapidapi-host': 'api-football-v1.p.rapidapi.com',
-                    'x-rapidapi-key': API_KEY
-                }
-            });
+            // читаем matches.json, который поддерживает workflow
+            const res = await fetch('matches.json', { cache: 'no-cache' });
             if (!res.ok) {
-                console.error('API error', res.status);
+                console.error('Local matches.json not found, status', res.status);
                 return [];
             }
-            const data = await res.json();
-            const matches = data.response || [];
+            const matches = await res.json(); // массив объектов .response
 
             // Преобразуем в формат, который ожидал старый фронтенд
             const formattedLeagues = {};
+            const selectedDate = this.datePicker?.value;
+
             for (const match of matches) {
+                // опционально фильтр по выбранной дате
+                const fixtureDate = (match.fixture && match.fixture.date || '').slice(0,10);
+                if (selectedDate && fixtureDate !== selectedDate) continue;
+
                 const league = match.league;
                 const name = `${league.name} (${league.country})`;
 
@@ -89,7 +90,7 @@ class LeagueManager {
 
             return Object.values(formattedLeagues);
         } catch (error) {
-            console.error('Error fetching data:', error);
+            console.error('Error fetching local matches.json:', error);
             return [];
         }
     }

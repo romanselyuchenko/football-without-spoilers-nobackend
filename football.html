@@ -12,15 +12,17 @@
   </style>
 </head>
 <body>
-  <h1>Matches</h1>
+  <div class="container">
+    <h1>Matches</h1>
 
-  <!-- ids изменены под script.js -->
-  <div class="controls">
-    <input id="date-picker" type="date" />
-    <button id="refresh-btn">Load matches</button>
+    <!-- ids изменены под script.js -->
+    <div class="controls">
+      <input id="date-picker" type="date" />
+      <button id="refresh-btn">Load matches</button>
+    </div>
+
+    <div id="leagues-container"></div>
   </div>
-
-  <div id="leagues-container"></div>
 
   <!-- Подключаем модульный скрипт -->
   <script type="module" src="script.js"></script>
