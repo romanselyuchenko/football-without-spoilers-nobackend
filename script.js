@@ -147,26 +147,76 @@ class LeagueManager {
             const homeIcon = this.getTeamIcon(match.homeTeam);
             const awayIcon = this.getTeamIcon(match.awayTeam);
 
-            matchDiv.innerHTML = `
-                <div class="match-teams" style="display:flex;align-items:center;gap:8px;flex:1;">
-                    <img src="${homeIcon}" alt="${match.homeTeam}" class="team-icon" onerror="this.src='icons/default.png'">
-                    <div class="team"><div class="name">${match.homeTeam}</div></div>
-                    <span style="margin:0 6px">vs</span>
-                    <img src="${awayIcon}" alt="${match.awayTeam}" class="team-icon" onerror="this.src='icons/default.png'">
-                    <div class="team"><div class="name">${match.awayTeam}</div></div>
-                </div>
-                <div class="match-score" data-full-score="${match.score.score}">
-                    ${match.score.display === 'Finished' ? 
-                        '<span class="clickable-score">Finished</span>' : 
-                        match.score.display}
-                </div>
-                <div class="youtube-link" style="display: none;">
-                    <a href="#" class="youtube-button">YouTube</a>
-                </div>
-            `;
+            // вместо вставки строкой innerHTML — делаем безопасную подмену иконок
+            const teamsDiv = document.createElement('div');
+            teamsDiv.className = 'match-teams';
+            teamsDiv.style.display = 'flex';
+            teamsDiv.style.alignItems = 'center';
+            teamsDiv.style.gap = '8px';
+            teamsDiv.style.flex = '1';
 
-            const scoreElement = matchDiv.querySelector('.clickable-score');
-            const youtubeLinkDiv = matchDiv.querySelector('.youtube-link');
+            const homeImg = document.createElement('img');
+            homeImg.className = 'team-icon';
+            homeImg.alt = match.homeTeam;
+            homeImg.src = 'icons/default.png';               // placeholder сразу
+            homeImg.width = 36; homeImg.height = 36;
+            homeImg.loading = 'lazy';                       // не блокируем загрузку
+            homeImg.decoding = 'async';
+
+            const homeNameDiv = document.createElement('div');
+            homeNameDiv.className = 'team';
+            homeNameDiv.innerHTML = `<div class="name">${match.homeTeam}</div>`;
+
+            const vsSpan = document.createElement('span');
+            vsSpan.style.margin = '0 6px';
+            vsSpan.textContent = 'vs';
+
+            const awayImg = document.createElement('img');
+            awayImg.className = 'team-icon';
+            awayImg.alt = match.awayTeam;
+            awayImg.src = 'icons/default.png';
+            awayImg.width = 36; awayImg.height = 36;
+            awayImg.loading = 'lazy';
+            awayImg.decoding = 'async';
+
+            const awayNameDiv = document.createElement('div');
+            awayNameDiv.className = 'team';
+            awayNameDiv.innerHTML = `<div class="name">${match.awayTeam}</div>`;
+
+            teamsDiv.append(homeImg, homeNameDiv, vsSpan, awayImg, awayNameDiv);
+
+            // фоновая загрузка реальных иконок и подмена только при успехе
+            const loadIconSafe = (url, imgElement) => {
+                if (!url) return;
+                const pre = new Image();
+                pre.onload = () => { imgElement.src = url; };
+                pre.onerror = () => { imgElement.src = 'icons/default.png'; };
+                pre.src = url;
+            };
+
+            loadIconSafe(homeIcon, homeImg);
+            loadIconSafe(awayIcon, awayImg);
+
+            matchDiv.appendChild(teamsDiv);
+
+            const scoreElement = document.createElement('div');
+            scoreElement.className = 'match-score';
+            scoreElement.setAttribute('data-full-score', match.score.score);
+            scoreElement.textContent = match.score.display === 'Finished' ? 'Finished' : match.score.display;
+
+            const youtubeLinkDiv = document.createElement('div');
+            youtubeLinkDiv.className = 'youtube-link';
+            youtubeLinkDiv.style.display = 'none';
+
+            const youtubeButton = document.createElement('a');
+            youtubeButton.href = '#';
+            youtubeButton.className = 'youtube-button';
+            youtubeButton.textContent = 'YouTube';
+
+            youtubeLinkDiv.appendChild(youtubeButton);
+
+            matchDiv.appendChild(scoreElement);
+            matchDiv.appendChild(youtubeLinkDiv);
 
             if (scoreElement) {
                 let state = 0;

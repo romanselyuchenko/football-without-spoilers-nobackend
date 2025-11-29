@@ -151,7 +151,9 @@ button, #load {
     width: 36px;
     height: 36px;
     object-fit: contain;
-    margin-right: 8px;
+    display: block;          /* убрать inline-прыжки */
+    background: #f3f3f3;     /* нейтральный фон вместо белого мигания */
+    border-radius: 4px;
 }
 
 .team-icon[src="icons/default.png"] {
