@@ -47,13 +47,14 @@ class LeagueManager {
 
     async fetchLeagueData() {
         try {
-            // читаем matches.json, который поддерживает workflow
-            const res = await fetch('matches.json', { cache: 'no-cache' });
+            // избегаем 304/кеша — добавляем метку времени и cache: 'no-store'
+            const res = await fetch(`matches.json?ts=${Date.now()}`, { cache: 'no-store' });
             if (!res.ok) {
                 console.error('Local matches.json not found, status', res.status);
                 return [];
             }
-            const matches = await res.json(); // массив объектов .response
+            const matches = await res.json();
+            console.log('Loaded matches.json, total:', matches.length, matches.slice(0,3)); // для отладки
 
             // Преобразуем в формат, который ожидал старый фронтенд
             const formattedLeagues = {};
