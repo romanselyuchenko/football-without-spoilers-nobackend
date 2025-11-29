@@ -8,7 +8,6 @@ on:
 jobs:
   fetch:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -25,7 +24,17 @@ jobs:
             -H "x-rapidapi-key: ${API_KEY}" \
             --data-urlencode "date=${DATE}" \
             --data-urlencode "status=FT" -o api-response.json
+<<<<<<< HEAD
           python3 -c "import json,sys; d=json.load(open('api-response.json')); print(json.dumps(d.get('response',[]), ensure_ascii=False, indent=2))" > matches.json
+=======
+          python3 << 'ENDPYTHON'
+import json
+with open('api-response.json') as f:
+    d = json.load(f)
+with open('matches.json', 'w') as f:
+    json.dump(d.get('response', []), f, indent=2, ensure_ascii=False)
+ENDPYTHON
+>>>>>>> accdf833e9b42833bf186200a9859c06ef198eda
 
       - name: Commit matches.json
         run: |
