@@ -5,6 +5,10 @@ on:
   schedule:
     - cron: '0 * * * *'
 
+# даём workflow право модифицировать содержимое репозитория
+permissions:
+  contents: write
+
 jobs:
   fetch:
     runs-on: ubuntu-latest
@@ -25,7 +29,7 @@ jobs:
             -H "x-rapidapi-key: ${API_KEY}" \
             --data-urlencode "date=${DATE}" \
             --data-urlencode "status=FT" -o api-response.json
-          python3 -c "import json,sys; d=json.load(open('api-response.json')); print(json.dumps(d.get('response',[]), ensure_ascii=False, indent=2))" > matches.json
+          python3 -c "import json; d=json.load(open('api-response.json')); print(json.dumps(d.get('response',[]), ensure_ascii=False, indent=2))" > matches.json
 
       - name: Commit matches.json
         run: |
