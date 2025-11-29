@@ -1,8 +1,5 @@
-/* УДАЛИТЕ или закомментируйте строку с ключом вверху:
-const API_KEY = '...';
-*/
-
-const URL = 'https://v3.football.api-sports.io/fixtures';
+const API_KEY = '952583d14957b0616f3736e623fad301'; // замените на реальный ключ
+const API_URL = 'https://v3.football.api-sports.io/fixtures';
 
 class LeagueManager {
     constructor() {
@@ -47,27 +44,39 @@ class LeagueManager {
 
     async fetchLeagueData() {
         try {
-            // избегаем 304/кеша — добавляем метку времени и cache: 'no-store'
-            const res = await fetch(`matches.json?ts=${Date.now()}`, { cache: 'no-store' });
+            const selectedDate = this.datePicker?.value || new Date().toISOString().split('T')[0];
+            
+            // запрос напрямую к API с выбранной датой
+            const params = new URLSearchParams({
+                date: selectedDate,
+                status: 'FT'
+            });
+
+            const res = await fetch(`${API_URL}?${params.toString()}`, {
+                headers: {
+                    'x-rapidapi-host': 'api-football-v1.p.rapidapi.com',
+                    'x-rapidapi-key': API_KEY
+                },
+                cache: 'no-store'
+            });
+
             if (!res.ok) {
-                console.error('Local matches.json not found, status', res.status);
+                console.error('API error:', res.status);
                 return [];
             }
-            const matches = await res.json();
-            console.log('Loaded matches.json, total:', matches.length, matches.slice(0,3)); // для отладки
 
-            // Преобразуем в формат, который ожидал старый фронтенд
+            const data = await res.json();
+            const matches = data.response || [];
+            console.log('API matches loaded for', selectedDate, ':', matches.length);
+
+            // преобразуем в формат для отображения
             const formattedLeagues = {};
-            const selectedDate = this.datePicker?.value;
 
             for (const match of matches) {
-                // опционально фильтр по выбранной дате
-                const fixtureDate = (match.fixture && match.fixture.date || '').slice(0,10);
-                if (selectedDate && fixtureDate !== selectedDate) continue;
-
                 const league = match.league;
                 const name = `${league.name} (${league.country})`;
 
+                // фильтруем нужные лиги
                 const ok = (league.name.toLowerCase() === 'premier league' && league.country.toLowerCase() === 'england')
                         || (league.name.toLowerCase() === 'la liga' && league.country.toLowerCase() === 'spain')
                         || (league.name.toLowerCase() === 'uefa champions league' && league.country.toLowerCase() === 'world');
@@ -91,7 +100,7 @@ class LeagueManager {
 
             return Object.values(formattedLeagues);
         } catch (error) {
-            console.error('Error fetching local matches.json:', error);
+            console.error('Error fetching from API:', error);
             return [];
         }
     }
