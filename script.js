@@ -1,4 +1,4 @@
-const API_KEY = '952583d14957b0616f3736e623fad301'; // замените на реальный ключ
+const API_KEY = '571066dc347ab38697af4c945a93d52c'; // замените на реальный ключ
 const API_URL = 'https://v3.football.api-sports.io/fixtures';
 
 class LeagueManager {
